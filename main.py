@@ -1,8 +1,9 @@
 # Imports and Inits
-import cv2
-import smtplib
-import ssl
 import pickle
+import time
+
+import cv2
+from sinchsms import SinchSMS
 
 # Password for the email and saving the password in a database
 RED_TIMES = 0
@@ -21,20 +22,15 @@ outfile.close()
 state = None
 
 print('Only google email accepted.')
-parent = input("Enter your parent's email: ")
+parent = input("Enter your parent's number: ")
 password = content[0]
 
 
 # Function to end emails to anyone
 def emails():
-    # Starting the SMTP session with port 587 - gmail
-    global state
-    port = 587  # For starttls
-    smtp_server = "smtp.gmail.com"
-
-    sender_email = "focusmeter330@gmail.com"
-    receiver_email = parent
-    pw = content[0]
+    # enter all the details
+    # get app_key and app_secret by registering
+    # a app on sinchSMS
 
     # Determining the state of the child's focus
     if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(50, 76):
@@ -50,19 +46,14 @@ def emails():
         state = "Your child was not at all focused during this time."
 
     # Making the content of the message
+
+    # enter the message to be sent
     message = f"""No. of times you were focused: {GREEN_TIMES // 5}.  
                   No. of times you were distracted {RED_TIMES // 5}. 
                   Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%. 
                   {state}"""
 
-    context = ssl.create_default_context()
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()  # Can be omitted
-        server.starttls(context=context)
-
-        server.ehlo()  # Can be omitted
-        server.login(sender_email, pw)
-        server.sendmail(sender_email, receiver_email, message)
+    print(message)
 
 
 # .XML files and haarcascades to detect the faces and smile
