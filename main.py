@@ -72,7 +72,6 @@ while 1:
     faces = face_detector.detectMultiScale(frame_grayscale)
     
     smiles = smile_detector.detectMultiScale(frame_grayscale)
-    eyes = eyes_detector.detectMultiScale(frame_grayscale)
 
     for (x, y, w, h) in faces:
         the_face = frame[y: y + h, x: x + w]
