@@ -1,4 +1,5 @@
 import cv2
+import smtplib
 import pickle
 
 RED_TIMES = 0
@@ -13,6 +14,16 @@ outfile = open('password.pkl', 'wb')
 pickle.dump(content, outfile)
 outfile.close()
 state = None
+
+def emails():
+    print('Only google email accepted.')
+    parent = input("Enter your parent's email: ")
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s.starttls()
+    s.login("math.pi.study@gmail.com", content[0])
+    message = f"""No. of times you were focused: {GREEN_TIMES // 5}.  No. of times you were distracted {RED_TIMES // 5}. Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%"""
+    s.sendmail("math.pi.study@gmail.com", parent, message)
+    s.quit()
 
 face_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_smile.xml')
@@ -51,10 +62,6 @@ while 1:
 
     count += 1
     if count == 100:
+        emails()
         webcam.release()
         cv2.destroyAllWindows()
-
-
-print(f'No. of times you were focused: {GREEN_TIMES // 5}')
-print(f'No. of times you were distracted {RED_TIMES // 5}')
-print(f'Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%')
