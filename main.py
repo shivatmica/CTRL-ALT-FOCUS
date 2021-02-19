@@ -8,6 +8,7 @@ class P(object):
         self.x = None
         self.y = None
         self.detect_iris(eye_frame)
+        
     @staticmethod
     def image_processing(eye_frame, threshold):
         k = np.ones((3, 3), np.uint8)
@@ -15,6 +16,7 @@ class P(object):
         nf = cv2.erode(nf, k, iterations=3)
         nf = cv2.threshold(nf, threshold, 255, cv2.THRESH_BINARY)[1]
         return nf
+    
     def detect_iris(self, eye_frame):
         self.fi = self.image_processing(eye_frame, self.threshold)
         ct, _ = cv2.findContours(self.iris_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
