@@ -14,12 +14,12 @@ pickle.dump(content ,outfile)
 outfile.close()
 state = None
 
-def emails():
-    print('Only gmail emails will be accepted.')
-    cord = input('Enter the email of your coordinator of school: ')
-    parent = input('Enter the email of your parent: ')
-    emails = [cord, parent]
+print('Only gmail emails will be accepted.')
+cord = input('Enter the email of your coordinator of school: ')
+parent = input('Enter the email of your parent: ')
+emails = [cord, parent]
 
+def emails():
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
     s.login("math.pi.study@gmail.com", f"{content}")
@@ -68,3 +68,4 @@ while True:
 
 webcam.release()
 cv2.destroyAllWindows()
+emails()
