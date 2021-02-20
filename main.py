@@ -25,6 +25,8 @@ text5 = Font.render('DETECTOR!', True, color)
 face_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_smile.xml')
 eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarascade_eye.xml')
+
+
 def smile():
     global RED_TIMES, GREEN_TIMES
     # Password for the email and saving the password in a database
@@ -91,7 +93,7 @@ def smile():
             if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(-1, 40):
                 text7 = Font1.render(message1, True, (255, 0, 0))
             elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(39, 70):
-                text7 = Font1.render(message1, True, (0, 255, 255))
+                text7 = Font1.render(message1, True, (255, 255, 0))
             elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(69, 100):
                 text7 = Font1.render(message1, True, (0, 255, 0))
             text8 = Font1.render(state, True, color_light)
@@ -124,6 +126,8 @@ def smile():
         # Display
         cv2.waitKey(1)
     emails()
+
+
 def eye():
     count1 = 0
 
@@ -221,6 +225,7 @@ def eye():
 
 
     SCREEN.blit(text9, (30, 300))
+
 
 while True:
     for event in pygame.event.get():
