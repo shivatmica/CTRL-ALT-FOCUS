@@ -1,18 +1,30 @@
 # Imports and Inits
 import pickle
-import tkinter as tk
 import dlib
+import pygame
 import numpy as np
 import cv2
 
-root = tk.Tk()
+pygame.init()
+WIDTH, HEIGHT = 720, 300
+color = (255, 255, 255)
+color_light = (170, 170, 170)
+color_dark = (100, 100, 100)
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("CTRL+ALT+FOCUS")
+Font = pygame.font.SysFont('Courier New', 35)
+Text = Font.render('Go to Smile Detctor!' , True , color)
+text1 = Font.render("CTRL+ALT+FOCUS", True, color)
+text2 = Font.render('Go to Smile', True, color)
+text3 = Font.render('DETECTOR!', True, color)
+text4 = Font.render('Go to Eye', True, color)
+text5 = Font.render('DETECTOR!', True, color)
 
 face_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_smile.xml')
 eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarascade_eye.xml')
-
-
 def smile():
+    global RED_TIMES, GREEN_TIMES
     # Password for the email and saving the password in a database
     RED_TIMES = 0
     GREEN_TIMES = 0
@@ -30,36 +42,6 @@ def smile():
     state = None
 
     # Function to end emails to anyone
-    def emails():
-        # enter all the details
-        # get app_key and app_secret by registering
-        # a app on sinchSMS
-
-        # Determining the state of the child's focus
-        global state
-        state = None
-
-        if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(50, 76):
-            state = "Your child was quite focused during this time."
-
-        elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(75, 101):
-            state = "Your child was very focused during this time."
-
-        elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(25, 51):
-            state = "Your child was not very focused during this time."
-
-        elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(0, 26):
-            state = "Your child was not at all focused during this time."
-
-        # Making the content of the message
-
-        # enter the message to be sent
-        message = f"""No. of times you were focused: {GREEN_TIMES // 5}.  
-                      No. of times you were distracted {RED_TIMES // 5}. 
-                      Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%. 
-                      {state}"""
-
-        print(message)
 
     # .XML files and haarcascades to detect the faces and smile
     count = 0
@@ -80,6 +62,36 @@ def smile():
         faces = face_detector.detectMultiScale(frame_grayscale)
         # Detect smiles
         # Run smile detection within each of those faces
+        def emails():
+            # enter all the details
+            # get app_key and app_secret by registering
+            # a app on sinchSMS
+
+            # Determining the state of the child's focus
+            state = None
+
+            if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(50, 76):
+                state = "Your child was quite focused during this time."
+
+            elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(75, 101):
+                state = "Your child was very focused during this time."
+
+            elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(25, 51):
+                state = "Your child was not very focused during this time."
+
+            elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(0, 26):
+                state = "Your child was not at all focused during this time."
+
+            # Making the content of the message
+
+            # enter the message to be sent
+            message = f"""No. of times you were focused: {GREEN_TIMES // 5}.  
+                          No. of times you were distracted {RED_TIMES // 5}. 
+                          Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%. 
+                          {state}"""
+
+            print(message)
+
         for (x, y, w, h) in faces:
             # Draw a rectangle around the face
             cv2.rectangle(frame, (x, y), (x + w, y + h), (100, 200, 50), 4)
@@ -99,15 +111,13 @@ def smile():
                 GREEN_TIMES += 1
         count += 1
         if count == 150:
-            emails()
+            print(emails())
             break
             break
         cv2.imshow('Smile Detector', frame)
 
         # Display
         cv2.waitKey(1)
-
-
 def eye():
     count1 = 0
 
@@ -189,13 +199,23 @@ def eye():
 
         if count1 == 150:
             break
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if 0 <= MOUSE[0] <= WIDTH / 2 and 70 <= MOUSE[1] <= 170:
+                smile()
+            if WIDTH / 2 <= MOUSE[0] <= WIDTH and 70 <= MOUSE[1] <= 170:
+                eye()
+    MOUSE = pygame.mouse.get_pos()
+    pygame.draw.rect(SCREEN, (255, 0, 0), [0, 70, WIDTH/2, 100])
+    pygame.draw.rect(SCREEN, (0, 255, 0), [WIDTH/2, 70, WIDTH, 100])
+    SCREEN.blit(text1, (25, 25))
+    SCREEN.blit(text2, (50, 80))
+    SCREEN.blit(text3, (85, 110))
+    SCREEN.blit(text4, (430, 80))
+    SCREEN.blit(text5, (430, 110))
+    pygame.display.update()
 
-def menu():
-    focus_meter = tk.Button(root, text = "Go to smile detector!", padx = 45, pady = 45, bg = 'yellow', command = smile)
-    eye_meter = tk.Button(root, text = 'Go to the eye detector!', padx = 45, pady = 45, bg = 'blue', command = eye)
-    focus_meter.grid(row = 0, column = 0)
-    eye_meter.grid(row = 0, column = 1)
-
-menu()
 cv2.destroyAllWindows()
-root.mainloop()
