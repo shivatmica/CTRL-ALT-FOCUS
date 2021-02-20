@@ -1,18 +1,22 @@
 # Imports and Inits
 import pickle
+import tkinter as tk
 import dlib
 import numpy as np
 import cv2
 
+root = tk.Tk()
+
 face_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_smile.xml')
-eye_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarascade_eye.xml')
+eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarascade_eye.xml')
+
 
 def smile():
     # Password for the email and saving the password in a database
     RED_TIMES = 0
     GREEN_TIMES = 0
-
+    count = 0
     filepath = "C:\\Users\\sharv\\password.txt"
 
     with open(filepath) as file:
@@ -25,11 +29,6 @@ def smile():
     outfile.close()
     state = None
 
-    print('Only google email accepted.')
-    parent = input("Enter your parent's number: ")
-    password = content[0]
-
-
     # Function to end emails to anyone
     def emails():
         # enter all the details
@@ -37,6 +36,9 @@ def smile():
         # a app on sinchSMS
 
         # Determining the state of the child's focus
+        global state
+        state = None
+
         if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(50, 76):
             state = "Your child was quite focused during this time."
 
@@ -64,41 +66,52 @@ def smile():
 
     webcam = cv2.VideoCapture(0)
 
-    while 1:
+    # Show the current frame
+    while True:
+        # Read the current frame from webcam video stream
         successful_frame_read, frame = webcam.read()
 
+        # If there's an error, abort
         if not successful_frame_read:
             break
-
+        # Change to grayscale
         frame_grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Detect faces first
         faces = face_detector.detectMultiScale(frame_grayscale)
-
-        smiles = smile_detector.detectMultiScale(frame_grayscale)
-
+        # Detect smiles
+        # Run smile detection within each of those faces
         for (x, y, w, h) in faces:
-            the_face = frame[y: y + h, x: x + w]
+            # Draw a rectangle around the face
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (100, 200, 50), 4)
+            the_face = frame[y:y + h, x:x + w]
+            # the_face = (x, y, w, h)
+            # Change to grayscale
             face_grayscale = cv2.cvtColor(the_face, cv2.COLOR_BGR2GRAY)
+            smiles = smile_detector.detectMultiScale(face_grayscale, scaleFactor=1.7, minNeighbors=20)
 
-            # Detecting the smiles and eyes
-            smiles = smile_detector.detectMultiScale(face_grayscale, 1.8, 20)
-            eyes = eye_detector.detectMultiScale(face_grayscale, 1.8, 20)
-            # Making the green or red rectangle according to the smile
+            # Find the smile in the face
+            # Label this face as smiling
             if len(smiles) > 0:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 4)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
                 RED_TIMES += 1
-
             else:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 4)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 GREEN_TIMES += 1
-
         count += 1
-        if count == 100:
+        if count == 150:
             emails()
-            webcam.release()
-            cv2.destroyAllWindows()
+            break
+            break
+        cv2.imshow('Smile Detector', frame)
+
+        # Display
+        cv2.waitKey(1)
+
 
 def eye():
-    def shape_to_np(shape, dtype="int"):
+    count1 = 0
+
+    def shape_to_np(shape, dtype = "int"):
         cords = np.zeros((68, 2), dtype=dtype)
         for i in range(0, 68):
             cords[i] = (shape.part(i).x, shape.part(i).y)
@@ -111,7 +124,7 @@ def eye():
         return mask
 
     def contouring(thresh, mid, img, right=False):
-        _, contours, _= cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         try:
             cnt = max(contours, key=cv2.contourArea)
@@ -142,7 +155,7 @@ def eye():
 
     cv2.createTrackbar('threshold', 'image', 0, 255, nothing)
 
-    while True:
+    while 1:
         ret, img = cap.read()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         rects = detector(gray, 1)
@@ -169,12 +182,20 @@ def eye():
             # for (x, y) in shape[36:48]:
             #     cv2.circle(img, (x, y), 2, (255, 0, 0), -1)
         # show the image with the face detections + facial landmarks
+        count1 += 1
         cv2.imshow('eyes', img)
         cv2.imshow("image", thresh)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.waitKey(1)
+
+        if count1 == 150:
             break
 
-    cap.release()
+def menu():
+    focus_meter = tk.Button(root, text = "Go to smile detector!", padx = 45, pady = 45, bg = 'yellow', command = smile)
+    eye_meter = tk.Button(root, text = 'Go to the eye detector!', padx = 45, pady = 45, bg = 'blue', command = eye)
+    focus_meter.grid(row = 0, column = 0)
+    eye_meter.grid(row = 0, column = 1)
 
-eye()
+menu()
 cv2.destroyAllWindows()
+root.mainloop()
