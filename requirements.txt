@@ -1,0 +1,5 @@
+Write the following in your command line:
+    - pip install opencv-python
+    - pip inatall dlib
+    - pip install cmake
+    - pip install numpy 
