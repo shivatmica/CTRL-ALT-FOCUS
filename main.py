@@ -13,13 +13,13 @@ color_dark = (100, 100, 100)
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("CTRL+ALT+FOCUS")
 Font = pygame.font.SysFont('Courier New', 35)
+Font1 = pygame.font.SysFont('Courier New', 15)
 Text = Font.render('Go to Smile Detctor!' , True , color)
 text1 = Font.render("CTRL+ALT+FOCUS", True, color)
 text2 = Font.render('Go to Smile', True, color)
 text3 = Font.render('DETECTOR!', True, color)
 text4 = Font.render('Go to Eye', True, color)
 text5 = Font.render('DETECTOR!', True, color)
-
 face_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarcascade_smile.xml')
 eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'C:\\Users\\sharv\\PycharmProjects\\OPENCV\\haarascade_eye.xml')
@@ -68,7 +68,6 @@ def smile():
             # a app on sinchSMS
 
             # Determining the state of the child's focus
-            state = None
 
             if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(50, 76):
                 state = "Your child was quite focused during this time."
@@ -83,14 +82,20 @@ def smile():
                 state = "Your child was not at all focused during this time."
 
             # Making the content of the message
-
             # enter the message to be sent
-            message = f"""No. of times you were focused: {GREEN_TIMES // 5}.  
-                          No. of times you were distracted {RED_TIMES // 5}. 
-                          Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%. 
-                          {state}"""
-
-            print(message)
+            message = f"""No. of times you were focused: {GREEN_TIMES // 5}. No. of times you were distracted {RED_TIMES // 5}."""
+            message1 = f'Percentage of focus = {round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100))}%'
+            text6 = Font1.render(message, True, color_light)
+            if round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(-1, 40):
+                text7 = Font1.render(message1, True, (255, 0, 0))
+            elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(39, 70):
+                text7 = Font1.render(message1, True, (0, 255, 255))
+            elif round(((GREEN_TIMES / (GREEN_TIMES + RED_TIMES)) * 100)) in range(69, 100):
+                text7 = Font1.render(message1, True, (0, 255, 0))
+            text8 = Font1.render(state, True, color_light)
+            SCREEN.blit(text6, (10, 180))
+            SCREEN.blit(text7, (10, 210))
+            SCREEN.blit(text8, (10, 240))
 
         for (x, y, w, h) in faces:
             # Draw a rectangle around the face
@@ -111,13 +116,12 @@ def smile():
                 GREEN_TIMES += 1
         count += 1
         if count == 150:
-            print(emails())
-            break
             break
         cv2.imshow('Smile Detector', frame)
 
         # Display
         cv2.waitKey(1)
+    emails()
 def eye():
     count1 = 0
 
