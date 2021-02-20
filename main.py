@@ -5,8 +5,9 @@ import pygame
 import numpy as np
 import cv2
 
+mid_vals = []
 pygame.init()
-WIDTH, HEIGHT = 720, 300
+WIDTH, HEIGHT = 720, 400
 color = (255, 255, 255)
 color_light = (170, 170, 170)
 color_dark = (100, 100, 100)
@@ -14,6 +15,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("CTRL+ALT+FOCUS")
 Font = pygame.font.SysFont('Courier New', 35)
 Font1 = pygame.font.SysFont('Courier New', 15)
+Font2 = pygame.font.SysFont('Courier New', 20)
 Text = Font.render('Go to Smile Detctor!' , True , color)
 text1 = Font.render("CTRL+ALT+FOCUS", True, color)
 text2 = Font.render('Go to Smile', True, color)
@@ -168,7 +170,8 @@ def eye():
         pass
 
     cv2.createTrackbar('threshold', 'image', 0, 255, nothing)
-
+    Moving_count = 0
+    still_count = 0
     while 1:
         ret, img = cap.read()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -184,6 +187,13 @@ def eye():
             mask = (eyes == [0, 0, 0]).all(axis=2)
             eyes[mask] = [255, 255, 255]
             mid = (shape[42][0] + shape[39][0]) // 2
+            mid_vals.append(mid)
+            for n in range(len(mid_vals)):
+                if mid_vals[n] - mid_vals[n - 1] in range(0, 70):
+                    still_count += 1
+                else:
+                    Moving_count += 1
+
             eyes_gray = cv2.cvtColor(eyes, cv2.COLOR_BGR2GRAY)
             threshold = cv2.getTrackbarPos('threshold', 'image')
             _, thresh = cv2.threshold(eyes_gray, threshold, 255, cv2.THRESH_BINARY)
@@ -201,8 +211,17 @@ def eye():
         cv2.imshow("image", thresh)
         cv2.waitKey(1)
 
-        if count1 == 150:
+        if count1 == 50:
             break
+
+    if still_count > 800:
+        text9 = Font2.render('Mostly focused during the time period.', True, (0, 255, 0))
+    else:
+        text9 = Font2.render('Mostly not focused during the time period', True, (255, 0, 0))
+
+
+    SCREEN.blit(text9, (30, 300))
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -215,6 +234,7 @@ while True:
     MOUSE = pygame.mouse.get_pos()
     pygame.draw.rect(SCREEN, (255, 0, 0), [0, 70, WIDTH/2, 100])
     pygame.draw.rect(SCREEN, (0, 255, 0), [WIDTH/2, 70, WIDTH, 100])
+    pygame.draw.line(SCREEN, (255, 255, 255), (0, 280), (WIDTH, 280))
     SCREEN.blit(text1, (25, 25))
     SCREEN.blit(text2, (50, 80))
     SCREEN.blit(text3, (85, 110))
